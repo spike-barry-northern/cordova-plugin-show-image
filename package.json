@@ -1,0 +1,57 @@
+{
+  "_from": "com.spikeglobal.cordova.plugin.show.image",
+  "_id": "com.spikeglobal.cordova.plugin.show.image@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-CYsZelfo/3yLn42pwriXlBbsAbNKhCaBje3Nu87jVV+DoItAP8eGP63z1Ke5lmAhMiN6W+S08kUTzuQCLHA/LA==",
+  "_location": "/com.spikeglobal.cordova.plugin.show.image",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "com.spikeglobal.cordova.plugin.show.image",
+    "name": "com.spikeglobal.cordova.plugin.show.image",
+    "escapedName": "com.spikeglobal.cordova.plugin.show.image",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_shasum": "d3943995179fc3ae76a2c67dc72efb9ac8e88a44",
+  "_spec": "com.spikeglobal.cordova.plugin.show.image",
+  "_where": "C:\\spike\\_temp",
+  "author": "",
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "com.spikeglobal.cordova.plugin.show.image",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "deprecated": false,
+  "description": "Show image in full screen mode with native components.",
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "keywords": [
+    "cordova",
+    "image",
+    "spanish",
+    "fullscreen",
+    "photos",
+    "keensoft",
+    "gallery",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "license": "MIT",
+  "name": "com.spikeglobal.cordova.plugin.show.image",
+  "version": "1.0.0"
+}
