@@ -83,19 +83,13 @@ public class FullScreenImage extends CordovaPlugin {
      * @param url     File path in local system
      */
     public void showImageURL (JSONArray args) throws JSONException {
+
         JSONObject json = args.getJSONObject(0);
         String url = getJSONProperty(json, "url");
-        try {
-
-            Uri path = Uri.parse(url);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setDataAndType(path, "image/*");
-            this.cordova.getActivity().startActivity(intent);
-
-        } catch (IOException e) {
-            Log.d(LOG_TAG, "Error: " + e.toString());
-
-        }
+        Uri path = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(path, "image/*");
+        this.cordova.getActivity().startActivity(intent);
     }
 }
