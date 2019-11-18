@@ -41,11 +41,12 @@
                 <param name="android-package" value="com.spikeglobal.cordova.plugin.show.image.FullScreenImage" />
             </feature>
         </config-file>
-         <config-file target="AndroidManifest.xml" parent="/*">
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         </config-file>
-        <source-file src="src/android/FullScreenImage.java" target-dir="src/com/spikeglobal/cordova/plugin/show/image/fullscreenimage" />
         <framework src="src/android/FullScreenImage.gradle" custom="true" type="gradleReference" />
+        <source-file src="src/android/FullScreenImage.java" target-dir="src/com/spikeglobal/cordova/plugin/show/image/fullscreenimage" />
     </platform>
     
 </plugin>
