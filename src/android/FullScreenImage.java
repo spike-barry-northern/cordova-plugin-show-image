@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.ParameterizedType;
 import java.util.Locale;
+import java.util.Random;
 
 import android.annotation.SuppressLint;
 
@@ -19,6 +21,7 @@ import org.json.JSONException;
 
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
@@ -32,6 +35,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 	
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
@@ -60,6 +64,8 @@ public class FullScreenImage extends CordovaPlugin {
 
         this.command = callback;
 
+        this.initialisePicasso();
+
         if ("showImageURL".equals(action)) {
             showImageURL(args);
 
@@ -77,18 +83,25 @@ public class FullScreenImage extends CordovaPlugin {
         return null;
     }
 
-    
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {  
-            this.showImage(this.saveImage(bitmap));
-        }
+    private Target target;
 
-        @Override
-        public void onBitmapFailed() {
-            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
-        }
-    };
+    private void initialisePicasso() {
+    	FullScreenImage self = this;
+    	this.target = new Target() {
+			@Override
+			public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+				self.showImage(self.saveImage(bitmap));
+			}
+
+			@Override
+			public void onBitmapFailed(Exception e, Drawable d) {
+				Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+			}
+
+			@Override
+			public void onPrepareLoad(Drawable d) {}
+		};
+	}
 
     /**
      * Show image in full screen from local resources.
