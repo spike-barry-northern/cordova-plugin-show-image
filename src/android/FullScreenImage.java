@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.ParameterizedType;
+import java.net.URI;
 import java.util.Locale;
 import java.util.Random;
 
@@ -86,10 +87,12 @@ public class FullScreenImage extends CordovaPlugin {
     private Target target;
 
     private void initialisePicasso() {
+        Log.v(FullScreenImage.LOG_TAG, "init picasso");
     	FullScreenImage self = this;
     	this.target = new Target() {
 			@Override
 			public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
 				self.showImage(self.saveImage(bitmap));
 			}
 
@@ -109,14 +112,20 @@ public class FullScreenImage extends CordovaPlugin {
      * @param url     File path in local system
      */
     public void showImageURL (JSONArray args) throws JSONException {
-
-        JSONObject json = args.getJSONObject(0);
-        String url = getJSONProperty(json, "url");
-        Picasso.get().load(url).into(this.target);
+        try {
+            Log.v(FullScreenImage.LOG_TAG, "show image url");
+            JSONObject json = args.getJSONObject(0);
+            String url = getJSONProperty(json, "url");
+            Picasso.get().load(url).into(this.target);
+        } 
+        catch (Exception e) {
+            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+        }
     }
 
     private File saveImage(Bitmap finalBitmap) {
 
+        Log.v(FullScreenImage.LOG_TAG, "save image");
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/saved_images");    
         myDir.mkdirs();
@@ -126,21 +135,19 @@ public class FullScreenImage extends CordovaPlugin {
         String fname = "Image-"+ n +".jpg";
         File file = new File (myDir, fname);
         if (file.exists ()) file.delete (); 
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-            return file;
-        } catch (Exception e) {
-            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-            return null;
-        }
+        Log.v(FullScreenImage.LOG_TAG, fname);
+        FileOutputStream out = new FileOutputStream(file);
+        finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        out.flush();
+        out.close();
+        return file;
     }
 
     private void showImage (File file)  {
         
-        Uri path = Uri.fromFile(file);
+        Log.v(FullScreenImage.LOG_TAG, "show saved image");
+        URI path = Uri.fromFile(file);
+        Log.v(FullScreenImage.LOG_TAG, path.toURL());
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setDataAndType(path, "image/*");
