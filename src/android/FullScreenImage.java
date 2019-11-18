@@ -30,8 +30,8 @@ import android.webkit.MimeTypeMap;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-
-
+	
+import com.squareup.picasso.Picasso;
 
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
@@ -77,6 +77,19 @@ public class FullScreenImage extends CordovaPlugin {
         return null;
     }
 
+    
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {  
+            this.showImage(this.saveImage(bitmap));
+        }
+
+        @Override
+        public void onBitmapFailed() {
+            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+        }
+    };
+
     /**
      * Show image in full screen from local resources.
      *
@@ -86,7 +99,35 @@ public class FullScreenImage extends CordovaPlugin {
 
         JSONObject json = args.getJSONObject(0);
         String url = getJSONProperty(json, "url");
-        Uri path = Uri.parse(url);
+        Picasso.get().load(url).into(this.target);
+    }
+
+    private File saveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/saved_images");    
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        if (file.exists ()) file.delete (); 
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+            return file;
+        } catch (Exception e) {
+            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+            return null;
+        }
+    }
+
+    private void showImage (File file)  {
+        
+        Uri path = Uri.fromFile(file);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setDataAndType(path, "image/*");
