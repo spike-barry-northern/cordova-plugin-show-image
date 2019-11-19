@@ -134,7 +134,7 @@ public class FullScreenImage extends CordovaPlugin {
 	private File saveImage(Bitmap finalBitmap) {
 
 		Log.v(FullScreenImage.LOG_TAG, "save image");
-		File myDir = Environment.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+		File myDir = this.cordova.getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 		Random generator = new Random();
 		int n = 10000;
 		n = generator.nextInt(n);
