@@ -156,11 +156,10 @@ public class FullScreenImage extends CordovaPlugin {
 	private void showImage (File file)  {
 
 		Log.v(FullScreenImage.LOG_TAG, "show saved image");
-		Uri path = Uri.parse("file://" + Uri.fromFile(file).getPath());
-		Log.v(FullScreenImage.LOG_TAG, path.getPath());
+		Log.v(FullScreenImage.LOG_TAG, Uri.parse("file://" + Uri.fromFile(file).getPath()).getPath());
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setDataAndType(path, "image/*");
+		intent.setDataAndType(Uri.parse("file://" + Uri.fromFile(file).getPath()), "image/*");
 		this.cordova.getActivity().startActivity(intent);
 	}
 }
