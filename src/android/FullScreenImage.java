@@ -42,8 +42,27 @@ import com.squareup.picasso.Target;
 
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
+    private static final FullScreenImage instance;
 	private CallbackContext command;
-	private static final String LOG_TAG = "FullScreenImagePlugin";
+    private static final String LOG_TAG = "FullScreenImagePlugin";
+    
+    private Handler uiHandler;
+    private Runnable runnable;
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
+            FullScreenImage.instance.showImage(FullScreenImage.instance.saveImage(bitmap));
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable d) {
+            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable d) {}
+    };
 
 	/**
 	 * Executes the request.
@@ -65,7 +84,8 @@ public class FullScreenImage extends CordovaPlugin {
 	public boolean execute (String action, JSONArray args,
 							CallbackContext callback) throws JSONException {
 
-		this.command = callback;
+        this.command = callback;
+        FullScreenImage.instance = this;
 
 		if ("showImageURL".equals(action)) {
 			showImageURL(args);
@@ -90,26 +110,8 @@ public class FullScreenImage extends CordovaPlugin {
 	 * @param url     File path in local system
 	 */
 	public void showImageURL (JSONArray args) throws JSONException {
-
-		FullScreenImage fsImage = this;
-		Handler uiHandler = new Handler(Looper.getMainLooper());
-		uiHandler.post(new Runnable() {
-
-			private Target target = new Target() {
-				@Override
-				public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-					Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-					fsImage.showImage(fsImage.saveImage(bitmap));
-				}
-
-				@Override
-				public void onBitmapFailed(Exception e, Drawable d) {
-					Log.v(FullScreenImage.LOG_TAG, "Could not load image");
-				}
-
-				@Override
-				public void onPrepareLoad(Drawable d) {}
-			};
+        this.uiHandler = new Handler(Looper.getMainLooper());
+        this.runnable = new Runnable() {
 
 			@Override
 			public void run() {
@@ -119,13 +121,14 @@ public class FullScreenImage extends CordovaPlugin {
 					String imageUrl = getJSONProperty(json, "url");
 					Picasso.get()
 						.load(imageUrl)
-						.into(this.target);
+						.into(FullScreenImage.instance.target);
 				}
 				catch (Exception e) {
 					Log.v(FullScreenImage.LOG_TAG, e.getMessage());
 				}
 			}
-		});
+		};
+		this.uiHandler.post(this.runnable);
 	}
 
 	private File saveImage(Bitmap finalBitmap) {
