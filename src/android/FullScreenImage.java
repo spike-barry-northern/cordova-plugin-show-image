@@ -65,8 +65,6 @@ public class FullScreenImage extends CordovaPlugin {
 
         this.command = callback;
 
-        this.initialisePicasso();
-
         if ("showImageURL".equals(action)) {
             showImageURL(args);
 
