@@ -84,27 +84,56 @@ public class FullScreenImage extends CordovaPlugin {
         return null;
     }
 
-    private Target target;
+    private Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
+            this.showImage(this.saveImage(bitmap));
+        }
 
-    private void initialisePicasso() {
-        Log.v(FullScreenImage.LOG_TAG, "init picasso");
-    	FullScreenImage self = this;
-    	this.target = new Target() {
-			@Override
-			public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-				self.showImage(self.saveImage(bitmap));
-			}
+        @Override
+        public void onBitmapFailed(Exception e, Drawable d) {
+            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+        }
 
-			@Override
-			public void onBitmapFailed(Exception e, Drawable d) {
-				Log.v(FullScreenImage.LOG_TAG, "Could not load image");
-			}
+        @Override
+        public void onPrepareLoad(Drawable d) {}
 
-			@Override
-			public void onPrepareLoad(Drawable d) {}
-		};
-	}
+        private File saveImage(Bitmap finalBitmap) {
+
+            Log.v(FullScreenImage.LOG_TAG, "save image");
+            String root = Environment.getExternalStorageDirectory().toString();
+            File myDir = new File(root + "/saved_images");
+            myDir.mkdirs();
+            Random generator = new Random();
+            int n = 10000;
+            n = generator.nextInt(n);
+            String fname = "Image-" + n + ".jpg";
+            File file = new File(myDir, fname);
+            if (file.exists()) file.delete();
+            Log.v(FullScreenImage.LOG_TAG, fname);
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (java.io.IOException e){
+                Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+            }
+            return file;
+        }
+
+        private void showImage (File file)  {
+            
+            Log.v(FullScreenImage.LOG_TAG, "show saved image");
+            Uri path = Uri.fromFile(file);
+            Log.v(FullScreenImage.LOG_TAG, path.getPath());
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setDataAndType(path, "image/*");
+            this.cordova.getActivity().startActivity(intent);
+        }
+    };
 
     /**
      * Show image in full screen from local resources.
@@ -121,40 +150,5 @@ public class FullScreenImage extends CordovaPlugin {
         catch (Exception e) {
             Log.v(FullScreenImage.LOG_TAG, e.getMessage());
         }
-    }
-
-    private File saveImage(Bitmap finalBitmap) {
-
-		Log.v(FullScreenImage.LOG_TAG, "save image");
-		String root = Environment.getExternalStorageDirectory().toString();
-		File myDir = new File(root + "/saved_images");
-		myDir.mkdirs();
-		Random generator = new Random();
-		int n = 10000;
-		n = generator.nextInt(n);
-		String fname = "Image-" + n + ".jpg";
-		File file = new File(myDir, fname);
-		if (file.exists()) file.delete();
-		Log.v(FullScreenImage.LOG_TAG, fname);
-		try {
-			FileOutputStream out = new FileOutputStream(file);
-			finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-			out.flush();
-			out.close();
-		} catch (java.io.IOException e){
-			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-		}
-        return file;
-    }
-
-    private void showImage (File file)  {
-        
-        Log.v(FullScreenImage.LOG_TAG, "show saved image");
-        Uri path = Uri.fromFile(file);
-        Log.v(FullScreenImage.LOG_TAG, path.getPath());
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(path, "image/*");
-        this.cordova.getActivity().startActivity(intent);
     }
 }
