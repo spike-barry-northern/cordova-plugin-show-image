@@ -146,7 +146,8 @@ public class FullScreenImage extends CordovaPlugin {
 			FileOutputStream out = new FileOutputStream(file);
 			finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
 			out.flush();
-			out.close();
+            out.close();
+            out.getFD().sync();
 		} catch (java.io.IOException e){
 			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
 		}
