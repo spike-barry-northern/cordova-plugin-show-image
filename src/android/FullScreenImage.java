@@ -42,10 +42,10 @@ import com.squareup.picasso.Target;
 
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
-    private static final FullScreenImage instance;
 	private CallbackContext command;
     private static final String LOG_TAG = "FullScreenImagePlugin";
     
+    private static FullScreenImage instance;
     private Handler uiHandler;
     private Runnable runnable;
     private Target target = new Target() {
