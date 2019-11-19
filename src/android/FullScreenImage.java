@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.Base64;
 import android.*;
@@ -34,119 +36,130 @@ import android.webkit.MimeTypeMap;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
-	
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
-    private CallbackContext command;
+	private CallbackContext command;
 	private static final String LOG_TAG = "FullScreenImagePlugin";
 
-    /**
-     * Executes the request.
-     *
-     * This method is called from the WebView thread.
-     * To do a non-trivial amount of work, use:
-     *     cordova.getThreadPool().execute(runnable);
-     *
-     * To run on the UI thread, use:
-     *     cordova.getActivity().runOnUiThread(runnable);
-     *
-     * @param action   The action to execute.
-     * @param args     The exec() arguments in JSON form.
-     * @param callback The callback context used when calling
-     *                 back into JavaScript.
-     * @return         Whether the action was valid.
-     */
-    @Override
-    public boolean execute (String action, JSONArray args,
-                            CallbackContext callback) throws JSONException {
+	/**
+	 * Executes the request.
+	 *
+	 * This method is called from the WebView thread.
+	 * To do a non-trivial amount of work, use:
+	 *     cordova.getThreadPool().execute(runnable);
+	 *
+	 * To run on the UI thread, use:
+	 *     cordova.getActivity().runOnUiThread(runnable);
+	 *
+	 * @param action   The action to execute.
+	 * @param args     The exec() arguments in JSON form.
+	 * @param callback The callback context used when calling
+	 *                 back into JavaScript.
+	 * @return         Whether the action was valid.
+	 */
+	@Override
+	public boolean execute (String action, JSONArray args,
+							CallbackContext callback) throws JSONException {
 
-        this.command = callback;
+		this.command = callback;
 
-        if ("showImageURL".equals(action)) {
-            showImageURL(args);
+		if ("showImageURL".equals(action)) {
+			showImageURL(args);
 
-            return true;
-        }
+			return true;
+		}
 
-        // Returning false results in a "MethodNotFound" error.
-        return false;
-    }
+		// Returning false results in a "MethodNotFound" error.
+		return false;
+	}
 
-    private String getJSONProperty(JSONObject json, String property) throws JSONException {
-        if (json.has(property)) {
-            return json.getString(property);
-        }
-        return null;
-    }
+	private String getJSONProperty(JSONObject json, String property) throws JSONException {
+		if (json.has(property)) {
+			return json.getString(property);
+		}
+		return null;
+	}
 
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-            this.showImage(this.saveImage(bitmap));
-        }
+	/**
+	 * Show image in full screen from local resources.
+	 *
+	 * @param url     File path in local system
+	 */
+	public void showImageURL (JSONArray args) throws JSONException {
 
-        @Override
-        public void onBitmapFailed(Exception e, Drawable d) {
-            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
-        }
+		FullScreenImage fsImage = this;
+		Handler uiHandler = new Handler(Looper.getMainLooper());
+		uiHandler.post(new Runnable() {
 
-        @Override
-        public void onPrepareLoad(Drawable d) {}
+			private Target target = new Target() {
+				@Override
+				public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+					Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
+					fsImage.showImage(fsImage.saveImage(bitmap));
+				}
 
-        private File saveImage(Bitmap finalBitmap) {
+				@Override
+				public void onBitmapFailed(Exception e, Drawable d) {
+					Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+				}
 
-            Log.v(FullScreenImage.LOG_TAG, "save image");
-            String root = Environment.getExternalStorageDirectory().toString();
-            File myDir = new File(root + "/saved_images");
-            myDir.mkdirs();
-            Random generator = new Random();
-            int n = 10000;
-            n = generator.nextInt(n);
-            String fname = "Image-" + n + ".jpg";
-            File file = new File(myDir, fname);
-            if (file.exists()) file.delete();
-            Log.v(FullScreenImage.LOG_TAG, fname);
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                out.flush();
-                out.close();
-            } catch (java.io.IOException e){
-                Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-            }
-            return file;
-        }
+				@Override
+				public void onPrepareLoad(Drawable d) {}
+			};
 
-        private void showImage (File file)  {
-            
-            Log.v(FullScreenImage.LOG_TAG, "show saved image");
-            Uri path = Uri.fromFile(file);
-            Log.v(FullScreenImage.LOG_TAG, path.getPath());
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setDataAndType(path, "image/*");
-            this.cordova.getActivity().startActivity(intent);
-        }
-    };
+			@Override
+			public void run() {
+				try {
+					Log.v(FullScreenImage.LOG_TAG, "show image url");
+					JSONObject json = args.getJSONObject(0);
+					String imageUrl = getJSONProperty(json, "url");
+					Picasso.get()
+						.load(imageUrl)
+						.into(this.target);
+				}
+				catch (Exception e) {
+					Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+				}
+			}
+		});
+	}
 
-    /**
-     * Show image in full screen from local resources.
-     *
-     * @param url     File path in local system
-     */
-    public void showImageURL (JSONArray args) throws JSONException {
-        try {
-            Log.v(FullScreenImage.LOG_TAG, "show image url");
-            JSONObject json = args.getJSONObject(0);
-            String url = getJSONProperty(json, "url");
-            Picasso.get().load(url).into(this.target);
-        } 
-        catch (Exception e) {
-            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-        }
-    }
+	private File saveImage(Bitmap finalBitmap) {
+
+		Log.v(FullScreenImage.LOG_TAG, "save image");
+		String root = Environment.getExternalStorageDirectory().toString();
+		File myDir = new File(root + "/saved_images");
+		myDir.mkdirs();
+		Random generator = new Random();
+		int n = 10000;
+		n = generator.nextInt(n);
+		String fname = "Image-" + n + ".jpg";
+		File file = new File(myDir, fname);
+		if (file.exists()) file.delete();
+		Log.v(FullScreenImage.LOG_TAG, fname);
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+			out.flush();
+			out.close();
+		} catch (java.io.IOException e){
+			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+		}
+		return file;
+	}
+
+	private void showImage (File file)  {
+
+		Log.v(FullScreenImage.LOG_TAG, "show saved image");
+		Uri path = Uri.fromFile(file);
+		Log.v(FullScreenImage.LOG_TAG, path.getPath());
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setDataAndType(path, "image/*");
+		this.cordova.getActivity().startActivity(intent);
+	}
 }
