@@ -131,36 +131,54 @@ public class FullScreenImage extends CordovaPlugin {
 		this.uiHandler.post(this.runnable);
 	}
 
-	private File saveImage(Bitmap finalBitmap) {
+	private String saveImage(Bitmap finalBitmap) {
 
 		Log.v(FullScreenImage.LOG_TAG, "save image");
 		File myDir = this.cordova.getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-		Random generator = new Random();
-		int n = 10000;
-		n = generator.nextInt(n);
-		String fname = "Image-" + n + ".jpg";
-		File file = new File(myDir, fname);
-		if (file.exists()) file.delete();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        byte[] byteArray = bytes.toByteArray();
+		String fname = FullScreenImage.getMD5(byteArray);
 		Log.v(FullScreenImage.LOG_TAG, fname);
-		try {
-			FileOutputStream out = new FileOutputStream(file);
-			finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-			out.flush();
-            out.close();
-            out.getFD().sync();
-		} catch (java.io.IOException e){
-			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-		}
-		return file;
+        file = new File(myDir, fname);
+        if (file.exists()) {
+            Log.v(FullScreenImage.LOG_TAG, "file already exists");
+            return file.getPath();
+        }
+        try {
+            Log.v(FullScreenImage.LOG_TAG, "writing file");
+            FileOutputStream fo = new FileOutputStream(file);
+            fo.write(byteArray);
+            fo.flush();
+            fo.close();
+        } catch (IOException e) {
+            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+        }
+		return file.getPath();
 	}
 
-	private void showImage (File file)  {
+	private void showImage (String path)  {
 
-		Log.v(FullScreenImage.LOG_TAG, "show saved image");
-		Log.v(FullScreenImage.LOG_TAG, Uri.parse("file://" + Uri.fromFile(file).getPath()).getPath());
+		Log.v(FullScreenImage.LOG_TAG, "show saved image: " + Uri.parse("file://" + path).getPath());
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setDataAndType(Uri.parse("file://" + Uri.fromFile(file).getPath()), "image/*");
+		intent.setDataAndType(Uri.parse("file://" + path), "image/*");
 		this.cordova.getActivity().startActivity(intent);
-	}
+    }
+    
+    public static String getMD5(byte[] source) {
+        StringBuilder sb = new StringBuilder();
+        java.security.MessageDigest md5 = null;
+        try {
+            md5 = java.security.MessageDigest.getInstance("MD5");
+            md5.update(source);
+        } catch (NoSuchAlgorithmException e) {
+        }
+        if (md5 != null) {
+            for (byte b : md5.digest()) {
+                sb.append(String.format("%02X", b));
+            }
+        }
+        return sb.toString();
+    }
 }
