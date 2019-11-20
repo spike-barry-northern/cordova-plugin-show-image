@@ -1,6 +1,6 @@
 {
   "_from": "com.spikeglobal.cordova.plugin.show.image",
-  "_id": "com.spikeglobal.cordova.plugin.show.image@1.0.0",
+  "_id": "com.spikeglobal.cordova.plugin.show.image@1.0.3",
   "_inBundle": false,
   "_integrity": "sha512-CYsZelfo/3yLn42pwriXlBbsAbNKhCaBje3Nu87jVV+DoItAP8eGP63z1Ke5lmAhMiN6W+S08kUTzuQCLHA/LA==",
   "_location": "/com.spikeglobal.cordova.plugin.show.image",
@@ -42,10 +42,8 @@
   "keywords": [
     "cordova",
     "image",
-    "spanish",
     "fullscreen",
     "photos",
-    "keensoft",
     "gallery",
     "ecosystem:cordova",
     "cordova-ios",
@@ -53,5 +51,5 @@
   ],
   "license": "MIT",
   "name": "com.spikeglobal.cordova.plugin.show.image",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
