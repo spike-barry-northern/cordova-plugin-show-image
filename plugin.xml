@@ -28,13 +28,22 @@
                 <param name="android-package" value="com.spikeglobal.cordova.plugin.show.image.PhotoViewer" />
             </feature>
         </config-file>
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.INTERNET" />
+        
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.spikeglobal.cordova.plugin.show.image.PhotoActivity" android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen" />
+        </config-file>
+
+		<config-file parent="/manifest" target="AndroidManifest.xml">
+			<uses-permission android:name="android.permission.INTERNET" />
 			<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 			<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-        </config-file>
-        <framework src="src/android/PhotoViewer.gradle" custom="true" type="gradleReference" />
-        <source-file src="src/android/PhotoViewer.java" target-dir="src/com/spikeglobal/cordova/plugin/show/image/photoviewer" />
+		</config-file>
+
+		<source-file src="src/android/PhotoViewer.java" target-dir="src/com/spikeglobal/cordova/plugin/show/image/photoviewer" />
+		<source-file src="src/android/PhotoActivity.java" target-dir="src/com/spikeglobal/cordova/plugin/show/image/photoviewer" />
+		<source-file src="src/android/layout/activity_photo.xml" target-dir="res/layout" />
+		<framework src="src/android/photoviewer.gradle" custom="true" type="gradleReference" />
+
     </platform>
     
 </plugin>
