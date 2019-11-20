@@ -137,7 +137,7 @@ public class FullScreenImage extends CordovaPlugin {
         Bitmap bitmap;
         File file;
     
-        public fileFromBitmap(Bitmap bitmap, Context context) {
+        public OpenFileFromBitmap(Bitmap bitmap, Context context) {
             this.bitmap = bitmap;
             this.context = context;
         }
