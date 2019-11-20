@@ -174,7 +174,8 @@ public class FullScreenImage extends CordovaPlugin {
 			super.onPostExecute(s);
 			Log.v(FullScreenImage.LOG_TAG, "show saved image: " + this.file.getPath());
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent.setDataAndType(Uri.parse(this.file.getPath()), "image/*");
 			FullScreenImage.instance.cordova.getActivity().startActivity(intent);
 		}
