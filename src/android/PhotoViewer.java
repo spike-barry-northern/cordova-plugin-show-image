@@ -1,4 +1,5 @@
 package com.spikeglobal.cordova.plugin.show.image;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class PhotoViewer extends CordovaPlugin {
 		return null;
 	}
 
-	public void showImageURL (JSONArray args) throws JSONException {
+	public void showImage (JSONArray args) throws JSONException {
 		this.uiHandler = new Handler(Looper.getMainLooper());
 		this.runnable = new Runnable() {
 
