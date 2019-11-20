@@ -52,7 +52,7 @@ public class FullScreenImage extends CordovaPlugin {
 		@Override
 		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 			Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-			FullScreenImage.instance.showImage(FullScreenImage.instance.saveImage(bitmap));
+			new OpenFileFromBitmap(bitmap, FullScreenImage.instance.cordova.getApplicationContext()).execute();
 		}
 
 		@Override
@@ -129,56 +129,68 @@ public class FullScreenImage extends CordovaPlugin {
 			}
 		};
 		this.uiHandler.post(this.runnable);
-	}
+    }
+    
+    public class OpenFileFromBitmap extends AsyncTask<Void, Integer, String> {
 
-	private String saveImage(Bitmap bitmap) {
-
-		Log.v(FullScreenImage.LOG_TAG, "save image");
-		File myDir = this.cordova.getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-		byte[] byteArray = bytes.toByteArray();
-		String fname = FullScreenImage.getMD5(byteArray);
-		Log.v(FullScreenImage.LOG_TAG, fname);
-		File file = new File(myDir, fname + ".jpg");
-		if (file.exists()) {
-			Log.v(FullScreenImage.LOG_TAG, "file already exists");
-			return file.getPath();
-		}
-		try {
-			Log.v(FullScreenImage.LOG_TAG, "writing file " + file.getPath());
-			FileOutputStream fo = new FileOutputStream(file);
-			fo.write(byteArray);
-			fo.flush();
-			fo.close();
-		} catch (IOException e) {
-			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-		}
-		return file.getPath();
-	}
-
-	private void showImage (String path)  {
-
-		Log.v(FullScreenImage.LOG_TAG, "show saved image: " + Uri.parse("file://" + path).getPath());
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setDataAndType(Uri.parse("file://" + path), "image/*");
-		this.cordova.getActivity().startActivity(intent);
-	}
-
-	public static String getMD5(byte[] source) {
-		StringBuilder sb = new StringBuilder();
-		java.security.MessageDigest md5 = null;
-		try {
-			md5 = java.security.MessageDigest.getInstance("MD5");
-			md5.update(source);
-		} catch (java.security.NoSuchAlgorithmException e) {
-		}
-		if (md5 != null) {
-			for (byte b : md5.digest()) {
-				sb.append(String.format("%02X", b));
-			}
-		}
-		return sb.toString();
-	}
+        Context context;
+        Bitmap bitmap;
+        File file;
+    
+        public fileFromBitmap(Bitmap bitmap, Context context) {
+            this.bitmap = bitmap;
+            this.context = context;
+        }
+    
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+    
+        @Override
+        protected String doInBackground(Void... params) {
+    
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            byte[] byteArray = bytes.toByteArray();
+            String filename = this.getMD5(byteArray);
+            this.file = new File(this.context.getCacheDir(), filename + ".jpg");
+            try {
+                FileOutputStream fo = new FileOutputStream(file);
+                fo.write(byteArray);
+                fo.flush();
+                fo.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    
+            return null;
+        }
+    
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.v(FullScreenImage.LOG_TAG, "show saved image: " + this.file.getPath());
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setDataAndType(Uri.parse(this.file.getPath()), "image/*");
+            FullScreenImage.instance.cordova.getActivity().startActivity(intent);
+        }
+        
+        private String getMD5(byte[] source) {
+            StringBuilder sb = new StringBuilder();
+            java.security.MessageDigest md5 = null;
+            try {
+                md5 = java.security.MessageDigest.getInstance("MD5");
+                md5.update(source);
+            } catch (java.security.NoSuchAlgorithmException e) {
+            }
+            if (md5 != null) {
+                for (byte b : md5.digest()) {
+                    sb.append(String.format("%02X", b));
+                }
+            }
+            return sb.toString();
+        }
+    }
 }
