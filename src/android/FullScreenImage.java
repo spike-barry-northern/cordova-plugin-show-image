@@ -21,9 +21,11 @@ import org.json.JSONObject;
 import org.json.JSONException;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,7 +54,7 @@ public class FullScreenImage extends CordovaPlugin {
 		@Override
 		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 			Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-			new OpenFileFromBitmap(bitmap, FullScreenImage.instance.cordova.getApplicationContext()).execute();
+			new OpenFileFromBitmap(bitmap, FullScreenImage.instance.cordova.getActivity().getApplicationContext()).execute();
 		}
 
 		@Override
@@ -129,68 +131,68 @@ public class FullScreenImage extends CordovaPlugin {
 			}
 		};
 		this.uiHandler.post(this.runnable);
-    }
-    
-    public class OpenFileFromBitmap extends AsyncTask<Void, Integer, String> {
+	}
 
-        Context context;
-        Bitmap bitmap;
-        File file;
-    
-        public OpenFileFromBitmap(Bitmap bitmap, Context context) {
-            this.bitmap = bitmap;
-            this.context = context;
-        }
-    
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-    
-        @Override
-        protected String doInBackground(Void... params) {
-    
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            byte[] byteArray = bytes.toByteArray();
-            String filename = this.getMD5(byteArray);
-            this.file = new File(this.context.getCacheDir(), filename + ".jpg");
-            try {
-                FileOutputStream fo = new FileOutputStream(file);
-                fo.write(byteArray);
-                fo.flush();
-                fo.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    
-            return null;
-        }
-    
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.v(FullScreenImage.LOG_TAG, "show saved image: " + this.file.getPath());
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setDataAndType(Uri.parse(this.file.getPath()), "image/*");
-            FullScreenImage.instance.cordova.getActivity().startActivity(intent);
-        }
-        
-        private String getMD5(byte[] source) {
-            StringBuilder sb = new StringBuilder();
-            java.security.MessageDigest md5 = null;
-            try {
-                md5 = java.security.MessageDigest.getInstance("MD5");
-                md5.update(source);
-            } catch (java.security.NoSuchAlgorithmException e) {
-            }
-            if (md5 != null) {
-                for (byte b : md5.digest()) {
-                    sb.append(String.format("%02X", b));
-                }
-            }
-            return sb.toString();
-        }
-    }
+	public class OpenFileFromBitmap extends AsyncTask<Void, Integer, String> {
+
+		Context context;
+		Bitmap bitmap;
+		File file;
+
+		public OpenFileFromBitmap(Bitmap bitmap, Context context) {
+			this.bitmap = bitmap;
+			this.context = context;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+		}
+
+		@Override
+		protected String doInBackground(Void... params) {
+
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+			byte[] byteArray = bytes.toByteArray();
+			String filename = this.getMD5(byteArray);
+			this.file = new File(this.context.getCacheDir(), filename + ".jpg");
+			try {
+				FileOutputStream fo = new FileOutputStream(file);
+				fo.write(byteArray);
+				fo.flush();
+				fo.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String s) {
+			super.onPostExecute(s);
+			Log.v(FullScreenImage.LOG_TAG, "show saved image: " + this.file.getPath());
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setDataAndType(Uri.parse(this.file.getPath()), "image/*");
+			FullScreenImage.instance.cordova.getActivity().startActivity(intent);
+		}
+
+		private String getMD5(byte[] source) {
+			StringBuilder sb = new StringBuilder();
+			java.security.MessageDigest md5 = null;
+			try {
+				md5 = java.security.MessageDigest.getInstance("MD5");
+				md5.update(source);
+			} catch (java.security.NoSuchAlgorithmException e) {
+			}
+			if (md5 != null) {
+				for (byte b : md5.digest()) {
+					sb.append(String.format("%02X", b));
+				}
+			}
+			return sb.toString();
+		}
+	}
 }
