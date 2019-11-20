@@ -43,26 +43,26 @@ import com.squareup.picasso.Target;
 @SuppressLint("DefaultLocale")
 public class FullScreenImage extends CordovaPlugin {
 	private CallbackContext command;
-    private static final String LOG_TAG = "FullScreenImagePlugin";
-    
-    private static FullScreenImage instance;
-    private Handler uiHandler;
-    private Runnable runnable;
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
-            FullScreenImage.instance.showImage(FullScreenImage.instance.saveImage(bitmap));
-        }
+	private static final String LOG_TAG = "FullScreenImagePlugin";
 
-        @Override
-        public void onBitmapFailed(Exception e, Drawable d) {
-            Log.v(FullScreenImage.LOG_TAG, "Could not load image");
-        }
+	private static FullScreenImage instance;
+	private Handler uiHandler;
+	private Runnable runnable;
+	private Target target = new Target() {
+		@Override
+		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+			Log.v(FullScreenImage.LOG_TAG, "bitmap loaded");
+			FullScreenImage.instance.showImage(FullScreenImage.instance.saveImage(bitmap));
+		}
 
-        @Override
-        public void onPrepareLoad(Drawable d) {}
-    };
+		@Override
+		public void onBitmapFailed(Exception e, Drawable d) {
+			Log.v(FullScreenImage.LOG_TAG, "Could not load image");
+		}
+
+		@Override
+		public void onPrepareLoad(Drawable d) {}
+	};
 
 	/**
 	 * Executes the request.
@@ -84,8 +84,8 @@ public class FullScreenImage extends CordovaPlugin {
 	public boolean execute (String action, JSONArray args,
 							CallbackContext callback) throws JSONException {
 
-        this.command = callback;
-        FullScreenImage.instance = this;
+		this.command = callback;
+		FullScreenImage.instance = this;
 
 		if ("showImageURL".equals(action)) {
 			showImageURL(args);
@@ -110,8 +110,8 @@ public class FullScreenImage extends CordovaPlugin {
 	 * @param url     File path in local system
 	 */
 	public void showImageURL (JSONArray args) throws JSONException {
-        this.uiHandler = new Handler(Looper.getMainLooper());
-        this.runnable = new Runnable() {
+		this.uiHandler = new Handler(Looper.getMainLooper());
+		this.runnable = new Runnable() {
 
 			@Override
 			public void run() {
@@ -131,29 +131,29 @@ public class FullScreenImage extends CordovaPlugin {
 		this.uiHandler.post(this.runnable);
 	}
 
-	private String saveImage(Bitmap finalBitmap) {
+	private String saveImage(Bitmap bitmap) {
 
 		Log.v(FullScreenImage.LOG_TAG, "save image");
 		File myDir = this.cordova.getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        byte[] byteArray = bytes.toByteArray();
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+		byte[] byteArray = bytes.toByteArray();
 		String fname = FullScreenImage.getMD5(byteArray);
 		Log.v(FullScreenImage.LOG_TAG, fname);
-        file = new File(myDir, fname);
-        if (file.exists()) {
-            Log.v(FullScreenImage.LOG_TAG, "file already exists");
-            return file.getPath();
-        }
-        try {
-            Log.v(FullScreenImage.LOG_TAG, "writing file");
-            FileOutputStream fo = new FileOutputStream(file);
-            fo.write(byteArray);
-            fo.flush();
-            fo.close();
-        } catch (IOException e) {
-            Log.v(FullScreenImage.LOG_TAG, e.getMessage());
-        }
+		File file = new File(myDir, fname);
+		if (file.exists()) {
+			Log.v(FullScreenImage.LOG_TAG, "file already exists");
+			return file.getPath();
+		}
+		try {
+			Log.v(FullScreenImage.LOG_TAG, "writing file");
+			FileOutputStream fo = new FileOutputStream(file);
+			fo.write(byteArray);
+			fo.flush();
+			fo.close();
+		} catch (IOException e) {
+			Log.v(FullScreenImage.LOG_TAG, e.getMessage());
+		}
 		return file.getPath();
 	}
 
@@ -164,21 +164,21 @@ public class FullScreenImage extends CordovaPlugin {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setDataAndType(Uri.parse("file://" + path), "image/*");
 		this.cordova.getActivity().startActivity(intent);
-    }
-    
-    public static String getMD5(byte[] source) {
-        StringBuilder sb = new StringBuilder();
-        java.security.MessageDigest md5 = null;
-        try {
-            md5 = java.security.MessageDigest.getInstance("MD5");
-            md5.update(source);
-        } catch (NoSuchAlgorithmException e) {
-        }
-        if (md5 != null) {
-            for (byte b : md5.digest()) {
-                sb.append(String.format("%02X", b));
-            }
-        }
-        return sb.toString();
-    }
+	}
+
+	public static String getMD5(byte[] source) {
+		StringBuilder sb = new StringBuilder();
+		java.security.MessageDigest md5 = null;
+		try {
+			md5 = java.security.MessageDigest.getInstance("MD5");
+			md5.update(source);
+		} catch (java.security.NoSuchAlgorithmException e) {
+		}
+		if (md5 != null) {
+			for (byte b : md5.digest()) {
+				sb.append(String.format("%02X", b));
+			}
+		}
+		return sb.toString();
+	}
 }
