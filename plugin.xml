@@ -8,7 +8,7 @@
     </engines>
     
     <js-module src="www/photoviewer.js" name="PhotoViewer">
-        <clobbers target="ShowImage" />
+        <clobbers target="PhotoViewer" />
     </js-module>
 
     <!-- ios -->
