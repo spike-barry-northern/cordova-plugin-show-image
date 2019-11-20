@@ -140,13 +140,13 @@ public class FullScreenImage extends CordovaPlugin {
 		byte[] byteArray = bytes.toByteArray();
 		String fname = FullScreenImage.getMD5(byteArray);
 		Log.v(FullScreenImage.LOG_TAG, fname);
-		File file = new File(myDir, fname);
+		File file = new File(myDir, fname + ".jpg");
 		if (file.exists()) {
 			Log.v(FullScreenImage.LOG_TAG, "file already exists");
 			return file.getPath();
 		}
 		try {
-			Log.v(FullScreenImage.LOG_TAG, "writing file");
+			Log.v(FullScreenImage.LOG_TAG, "writing file " + file.getPath());
 			FileOutputStream fo = new FileOutputStream(file);
 			fo.write(byteArray);
 			fo.flush();
