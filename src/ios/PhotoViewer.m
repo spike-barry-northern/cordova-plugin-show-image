@@ -252,6 +252,8 @@
         [fullView addGestureRecognizer:singleTap];
         [fullView setUserInteractionEnabled:YES];
     }
+
+    [self unlockOrientation];
 }
 
 - (void)fullimagetapped:(UIGestureRecognizer *)gestureRecognizer {
@@ -271,6 +273,34 @@
     isOpen = false;
     [fullView removeFromSuperview];
     fullView = nil;
+    [self lockOrientation];
+}
+
+- (void)unlockOrientation {
+    CDVViewController* vc = (CDVViewController*)self.viewController;
+    SEL selector = NSSelectorFromString(@"setSupportedOrientations:");
+    if([vc respondsToSelector:selector]) {
+        NSMutableArray* orientations = [[NSMutableArray alloc] init];
+        [orientations addObject:[NSNumber numberWithInt:UIInterfaceOrientationPortrait]];
+        [orientations addObject:[NSNumber numberWithInt:UIInterfaceOrientationPortraitUpsideDown]];
+        [orientations addObject:[NSNumber numberWithInt:UIInterfaceOrientationLandscapeRight]];
+        [orientations addObject:[NSNumber numberWithInt:UIInterfaceOrientationLandscapeLeft]];
+        [[UIDevice currentDevice] setValue:[NSNumber numberWithInt:UIInterfaceOrientationPortrait] forKey:@"orientation"];
+        ((void (*)(CDVViewController*, SEL, NSMutableArray*))objc_msgSend)(vc,selector,orientations);
+        [UINavigationController attemptRotationToDeviceOrientation];
+    }
+}
+
+- (void)lockOrientation {
+    CDVViewController* vc = (CDVViewController*)self.viewController;
+    SEL selector = NSSelectorFromString(@"setSupportedOrientations:");
+    NSMutableArray* orientations = [[NSMutableArray alloc] init];
+    if([vc respondsToSelector:selector]) {
+        NSMutableArray* orientations = [[NSMutableArray alloc] init];
+        [orientations addObject:[NSNumber numberWithInt:UIInterfaceOrientationPortrait]];
+        ((void (*)(CDVViewController*, SEL, NSMutableArray*))objc_msgSend)(vc,selector,orientations);
+        [[UIDevice currentDevice] setValue:[NSNumber numberWithInt:UIInterfaceOrientationPortrait] forKey:@"orientation"];
+    }
 }
 
 - (void) orientationChanged:(NSNotification *)note
