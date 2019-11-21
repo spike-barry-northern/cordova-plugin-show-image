@@ -20,7 +20,7 @@
 @property (nonatomic, strong) UIDocumentInteractionController *docInteractionController;
 @property (nonatomic, strong) NSMutableArray *documentURLs;
 
-- (void)showImage:(CDVInvokedUrlCommand*)command;
+- (void)show:(CDVInvokedUrlCommand*)command;
 @end
 
 
@@ -54,7 +54,7 @@
     return self.viewController;
 }
 
-- (void)showImage:(CDVInvokedUrlCommand*)command
+- (void)show:(CDVInvokedUrlCommand*)command
 {
     if (isOpen == false) {
         [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
