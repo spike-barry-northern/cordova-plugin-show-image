@@ -42,11 +42,11 @@ public class PhotoActivity extends Activity {
 
     private ImageView photo;
 
-    private ImageButton closeBtn;
+    //private ImageButton closeBtn;
     private ImageButton shareBtn;
     private ProgressBar loadingBar;
 
-    private TextView titleTxt;
+    //private TextView titleTxt;
 
     private String mImage;
     private String mTitle;
@@ -70,7 +70,7 @@ public class PhotoActivity extends Activity {
         try {
             this.mImage = mArgs.getString(0);
             this.mTitle = mArgs.getString(1);
-            this.mShare = mArgs.getBoolean(2);
+            this.mShare = true;//mArgs.getBoolean(2);
             this.mHeaders = parseHeaders(mArgs.optString(5));
             this.pOptions = mArgs.optJSONObject(6);
 
@@ -90,9 +90,9 @@ public class PhotoActivity extends Activity {
         }
         shareBtn.setVisibility(shareBtnVisibility);
         //Change the activity title
-        if (!mTitle.equals("")) {
-            titleTxt.setText(mTitle);
-        }
+        // if (!mTitle.equals("")) {
+        //     titleTxt.setText(mTitle);
+        // }
 
         try {
             loadImage();
@@ -101,12 +101,12 @@ public class PhotoActivity extends Activity {
         }
 
         // Set Button Listeners
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        // closeBtn.setOnClickListener(new View.OnClickListener() {
+        //     @Override
+        //     public void onClick(View v) {
+        //         finish();
+        //     }
+        // });
 
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +145,7 @@ public class PhotoActivity extends Activity {
      */
     private void findViews() {
         // Buttons first
-        closeBtn = (ImageButton) findViewById(getApplication().getResources().getIdentifier("closeBtn", "id", getApplication().getPackageName()));
+        //closeBtn = (ImageButton) findViewById(getApplication().getResources().getIdentifier("closeBtn", "id", getApplication().getPackageName()));
         shareBtn = (ImageButton) findViewById(getApplication().getResources().getIdentifier("shareBtn", "id", getApplication().getPackageName()));
 
         //ProgressBar
@@ -155,7 +155,7 @@ public class PhotoActivity extends Activity {
         mAttacher = new PhotoViewAttacher(photo);
 
         // Title TextView
-        titleTxt = (TextView) findViewById(getApplication().getResources().getIdentifier("titleTxt", "id", getApplication().getPackageName()));
+        //titleTxt = (TextView) findViewById(getApplication().getResources().getIdentifier("titleTxt", "id", getApplication().getPackageName()));
     }
 
     /**
